@@ -1,6 +1,11 @@
 # Gomechan
 
-Go's net/http utilities
+Go's net/http utilities.
+
+If you're using a JSON for things like health check that returns only {"status": "up"}, don't use ResponseWriter.AsJson.
+ResponseWriter.AsJson uses encoding/json and it'll have an impact on your latency and resources usage. So just write it as a string.
+
+
 
 
 # Example
