@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// ResponseWriter to manage response to be sent with http.ResponseWriter, logging information of http.Request.
+// It keeps track of how long a request took to complete, the path, method, etc using log/slog to show output.
 type ResponseWriter struct {
 	status  int
 	body    string
