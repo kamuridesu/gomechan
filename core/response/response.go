@@ -41,14 +41,16 @@ func New(w *http.ResponseWriter, r *http.Request) ResponseWriter {
 //		http.StatusOK,
 //		"Hello World
 //	)
-func (r *ResponseWriter) Build(status int, body string) {
+func (r *ResponseWriter) Build(status int, body string) *ResponseWriter {
 	r.body = body
 	r.status = status
+	return r
 }
 
 // Sets response Headers
-func (r *ResponseWriter) SetHeaders(headers map[string]string) {
+func (r *ResponseWriter) SetHeaders(headers map[string]string) *ResponseWriter {
 	r.headers = headers
+	return r
 }
 
 // Sends the response to the request, adding headers and logging the request using log/slog.
