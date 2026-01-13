@@ -9,7 +9,7 @@ import (
 )
 
 // This struct stores template information to be sent as Response.
-// It uses Go http/template to replace variables with maps in JSON compatible format.
+// It uses Go's http/template to replace variables with values from maps in JSON compatible format.
 type Template struct {
 	folder    string
 	templates []string
@@ -39,11 +39,11 @@ func LoadTemplateFolder(folder string) (*Template, error) {
 	}, nil
 }
 
-// Get a template as string, returns error if template not found
+// Return template file as string, returns an error if template file is not found
 //
 // Usage:
 //
-//	template.GetTemplate("test.tmpl")
+// tmp, err := template.GetTemplate("test.tmpl")
 func (t *Template) GetTemplate(filename string) (string, error) {
 	for _, file := range t.templates {
 		if file == filename {
@@ -57,12 +57,12 @@ func (t *Template) GetTemplate(filename string) (string, error) {
 	return "", fmt.Errorf("template %s not found", filename)
 }
 
-// Loads HTML from template, applying the variable to the template.
-// WARN: This ignores any errors when loading templates.
+// Applies the variales to the HTML template then returns it as a string
+// WARN: This ignores any errors when loading template files.
 //
 // Usage:
 //
-//	template.LoadHTML("test.tmpl")
+// htmlContent := template.LoadHTML("test.tmpl")
 func (t *Template) LoadHTML(name string, variables map[string]any) string {
 	buff := new(strings.Builder)
 

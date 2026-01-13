@@ -12,7 +12,7 @@
 //
 //	writer := response.New(&w, r)
 //	_404 := templates.LoadHTML("404.tmpl", map[string]any{"message": "Test"})
-//	writer.SetHeaders(map[string]string{"content-type": "text/html"}).Build(http.StatusOK, _404).Send()
+//	writer.SetHeaders(map[string]string{"content-type": "text/html"}).Build(http.StatusOK, []byte(_404)).Send()
 //
 // . . .
 package response
@@ -20,7 +20,6 @@ package response
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -31,7 +30,7 @@ import (
 // It keeps track of how long a request took to complete, the path, method, etc using log/slog to show output.
 type ResponseWriter struct {
 	status    int
-	body      string
+	body      []byte
 	headers   map[string]string
 	start     time.Time
 	ignoreLog bool
@@ -46,7 +45,7 @@ func New(w *http.ResponseWriter, r *http.Request) ResponseWriter {
 		ignoreLog: false,
 		status:    http.StatusOK,
 		headers:   map[string]string{},
-		body:      "",
+		body:      []byte{},
 		w:         w,
 		r:         r,
 	}
@@ -58,9 +57,9 @@ func New(w *http.ResponseWriter, r *http.Request) ResponseWriter {
 //
 //	responseWriter.Build(
 //		http.StatusOK,
-//		"Hello World
+//		[]byte("Hello World"),
 //	)
-func (r *ResponseWriter) Build(status int, body string) *ResponseWriter {
+func (r *ResponseWriter) Build(status int, body []byte) *ResponseWriter {
 	r.body = body
 	r.status = status
 	return r
@@ -78,7 +77,7 @@ func (r *ResponseWriter) Send() error {
 		(*r.w).Header().Add(k, v)
 	}
 	(*r.w).WriteHeader(r.status)
-	_, err := io.WriteString((*r.w), r.body)
+	_, err := (*r.w).Write(r.body)
 	if err != nil {
 		return err
 	}
@@ -90,7 +89,7 @@ func (r *ResponseWriter) Send() error {
 	return nil
 }
 
-// Builds the response using map[string]any as JSON, settings content-type to application/json and sends the response
+// Builds the response using map[string]any as JSON, sets content-type to application/json and sends the response
 //
 // Usage:
 //
@@ -98,13 +97,13 @@ func (r *ResponseWriter) Send() error {
 //		http.StatusOK,
 //		map[string]any{"message": "Hello World"}
 //	)
-func (r *ResponseWriter) AsJson(status int, body map[string]any) error {
+func (r *ResponseWriter) SendAsJson(status int, body map[string]any) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 	r.headers["content-type"] = "application/json"
-	r.Build(status, string(b))
+	r.Build(status, b)
 	r.Send()
 	return nil
 }
