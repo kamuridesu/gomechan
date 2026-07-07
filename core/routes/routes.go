@@ -10,6 +10,6 @@ type router interface {
 
 // Add a health check route to the router
 // It can be consulted by requesting the /health path
-func AddHealthCheck(r router) {
-	r.HandleFunc("/health", HealthCheck)
+func AddHealthCheck(r router, checks ...Check) {
+	r.HandleFunc("/health", (&Health{checks: checks}).HealthCheck)
 }
