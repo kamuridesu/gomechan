@@ -64,22 +64,38 @@ func (t *Template) GetTemplate(filename string) (string, error) {
 //
 // htmlContent := template.LoadHTML("test.tmpl")
 func (t *Template) LoadHTML(name string, variables map[string]any) string {
-	buff := new(strings.Builder)
-
 	content, err := t.GetTemplate(name)
 	if err != nil {
 		return ""
 	}
 
+	parsed, err := t.Parse(content, variables)
+	if err != nil {
+		return ""
+	}
+
+	return *parsed
+}
+
+// Parses the template content, applying the variables and returning the HTML content
+//
+// Usage:
+//
+// htmlPointer, err := template.Parse(content, []map[string]any{"message": "hello world"})
+func (t *Template) Parse(content string, variables map[string]any) (*string, error) {
+	buffer := new(strings.Builder)
+
 	tmpl, err := template.New("template").Parse(content)
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
-	err = tmpl.Execute(buff, variables)
+	err = tmpl.Execute(buffer, variables)
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
-	return buff.String()
+	result := buffer.String()
+
+	return &result, nil
 }
